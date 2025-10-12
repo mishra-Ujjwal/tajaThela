@@ -1,20 +1,25 @@
 import userModel from "../models/user.model.js";
 
+import userModel from "../models/user.model.js";
+
 export const getCurrentUser = async (req, res) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.json({ success: false, message: "user id is not found" });
+      return res.status(401).json({ success: false, message: "Unauthorized" });
     }
-    const user = await userModel.findById(userId);
+
+    const user = await userModel.findById(userId).select("-password");
     if (!user) {
-      return res.json({ success: false, message: "user not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+
     return res.json({ success: true, user });
   } catch (err) {
-    return res.json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
+
 export const updateCity = async (req, res) => {
   try {
     const userId = req.userId; // from auth middleware
