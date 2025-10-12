@@ -62,7 +62,7 @@ const OwnerDashboard = () => {
           <ImageUpload
             onUpload={async (url) => {
               try {
-                await axios.put(
+                await axios.post(
                   `${import.meta.env.VITE_BACKEND_URL}/owner/cart-image`,
                   { cartImage: url },
                   { withCredentials: true }
