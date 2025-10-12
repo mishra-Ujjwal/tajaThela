@@ -23,21 +23,21 @@ const VendorPage = () => {
   const [showCartMobile, setShowCartMobile] = useState(false);
 
   // Add item to cart
-  const handleAdd = async ({ vegetableId, name, price, unit, image }) => {
+ const handleAdd = async ({ vegetableId, name, price, unit, image }) => {
   const cartItem = cart.find(
     (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
   );
   const newQuantity = (cartItem?.quantity || 0) + 1;
 
   try {
-    // Backend call
+    // Backend request
     await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/user/cart/add`,
       { vendorId, vegetableId, quantity: newQuantity },
       { withCredentials: true }
     );
 
-    // Redux update only after success
+    // Redux update
     dispatch(
       handleAddToCart({
         vendorId,
@@ -49,27 +49,43 @@ const VendorPage = () => {
         quantity: newQuantity,
       })
     );
+    toast.success(`${name} added to cart`);
   } catch (err) {
-    if (err.response && err.response.status === 401) {
-      alert("You are not authorized. Please login first!");
-      navigate("/login");
+    console.error("Add to cart error:", err);
+
+    if (err.response) {
+      if (err.response.status === 401) {
+        toast.error("❌ You are not authorized. Please login first!");
+        navigate("/login");
+      } else {
+        toast.error(err.response.data?.message || "Failed to add item to cart");
+      }
+    } else if (err.request) {
+      toast.error("No response from server. Check your network.");
     } else {
-      console.error(err);
-      alert("Something went wrong! Please try again.");
+      toast.error(err.message);
     }
   }
 };
 
-  // Remove item from cart
-  const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
-    const cartItem = cart.find(
-      (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
+// Remove item from cart
+const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
+  const cartItem = cart.find(
+    (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
+  );
+  if (!cartItem) return;
+
+  const newQuantity = cartItem.quantity - 1;
+
+  try {
+    // Backend request
+    await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/user/cart/remove`,
+      { vendorId, vegetableId, quantity: newQuantity },
+      { withCredentials: true }
     );
-    if (!cartItem) return;
 
-    const newQuantity = cartItem.quantity - 1;
-
-    // Redux
+    // Redux update
     dispatch(
       handleRemoveFromCart({
         vendorId,
@@ -78,14 +94,24 @@ const VendorPage = () => {
         image,
       })
     );
+    toast.info(`${name} removed from cart`);
+  } catch (err) {
+    console.error("Remove from cart error:", err);
 
-    // Backend
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/user/cart/remove`,
-      { vendorId, vegetableId, quantity: newQuantity },
-      { withCredentials: true }
-    );
-  };
+    if (err.response) {
+      if (err.response.status === 401) {
+        toast.error("❌ You are not authorized. Please login first!");
+        navigate("/login");
+      } else {
+        toast.error(err.response.data?.message || "Failed to remove item from cart");
+      }
+    } else if (err.request) {
+      toast.error("No response from server. Check your network.");
+    } else {
+      toast.error(err.message);
+    }
+  }
+};
 
   // Calculate subtotal
   const subtotal = cart.reduce(
