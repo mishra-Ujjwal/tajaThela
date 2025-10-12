@@ -57,7 +57,7 @@ const DeliveryBoyDashboard = () => {
       );
 
       if (res.data.success) {
-        toast.success("Order accepted ✅");
+        toast.success("Order accepted ");
         setAssignment((prev) => prev.filter((a) => a._id !== id));
 
         const updatedDelivery = res.data.updatedDelivery;
@@ -142,7 +142,7 @@ const DeliveryBoyDashboard = () => {
 
             <button
               onClick={() => acceptButton(item._id)}
-              className="w-full text-center py-2 font-semibold text-white bg-green-700 hover:bg-green-800 rounded-lg mt-2"
+              className="w-full text-center py-2 font-semibold text-white !bg-green-700 hover:!bg-green-800 rounded-lg mt-2"
             >
               Accept
             </button>

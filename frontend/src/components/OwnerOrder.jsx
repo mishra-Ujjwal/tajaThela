@@ -156,12 +156,7 @@ const OwnerOrder = () => {
                 <p className="font-medium">{boy.name}</p>
                 <p className="text-sm text-gray-500">{boy.mobile}</p>
               </div>
-              <button
-                onClick={() => assignDeliveryBoy(order._id, boy._id)}
-                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-              >
-                Assign
-              </button>
+              
             </div>
           ))}
         </div>

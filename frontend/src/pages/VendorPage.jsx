@@ -331,8 +331,8 @@ const VendorPage = () => {
         className="lg:hidden fixed bottom-0 left-0 w-full bg-green-600 text-white py-3 px-4 flex justify-between items-center cursor-pointer"
         onClick={() => setShowCartMobile(true)}
       >
-        <span>Cart ({cart.length})</span>
-        <span>₹{total}</span>
+        <span>Cart ({cart.length>0 ? total : 0})</span>
+
       </div>
 
       {/* Cart Drawer - Mobile */}

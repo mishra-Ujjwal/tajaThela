@@ -59,7 +59,7 @@ const OTPInput = ({ close, orderId, onSuccess }) => {
       />
       <button
         onClick={handleSubmit}
-        className="w-full bg-green-700 text-white py-2 rounded-lg font-semibold hover:bg-green-800 transition"
+        className="w-full !bg-green-700 text-white py-2 rounded-lg font-semibold hover:!bg-green-800 transition"
       >
         Confirm Delivery
       </button>
