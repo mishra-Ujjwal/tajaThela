@@ -87,7 +87,7 @@ const OwnerDashboard = () => {
   </div>
 
   {/* Orders */}
-  <div className="sm:w-1/4 w-full bg-orange-50 h-full overflow-y-auto p-4">
+  <div className="sm:w-auto w-full bg-orange-50 h-full overflow-y-auto p-4">
     <OwnerOrder />
   </div>
 </section>
