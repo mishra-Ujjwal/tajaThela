@@ -68,6 +68,7 @@ const UserDashboard = () => {
         <div className="overflow-x-auto w-full pt-2  ">
           <div className="flex gap-4">
             {vendor?.map((each, idx) => {
+             if (!each.vendorId?.location?.coordinates) return null;
               const vendorLng = each.vendorId.location.coordinates[0];
               const vendorLat = each.vendorId.location.coordinates[1];
 
