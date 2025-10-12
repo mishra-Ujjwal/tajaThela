@@ -16,8 +16,7 @@ const useGetAllVendor = () => {
           { withCredentials: true }
         );
         if(result.data.success){
-          console.log("done")
-          console.log(result);
+        
           dispatch(setVendors(result.data.vendors));
         }else{
           console.log("not done")

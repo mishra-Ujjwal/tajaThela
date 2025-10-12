@@ -12,12 +12,12 @@ const useGetOrder = () => {
         const result = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/orders`, {
           withCredentials: true,
         });
-        console.log(result.data.orders)
+
         dispatch(setUserOrders(result.data.orders))
         const vendorResult = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/vendor-orders`, {
           withCredentials: true,
         });
-        console.log(vendorResult.data.orders)
+
         dispatch(setVendorOrders(vendorResult.data.orders))
       } catch (err) {
         console.log(err)

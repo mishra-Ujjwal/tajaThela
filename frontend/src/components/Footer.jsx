@@ -8,7 +8,7 @@ const Footer = () => {
         
         {/* About Section */}
         <div>
-          <h3 className="text-lg font-semibold text-black mb-4">About Us</h3>
+          <h3 className="text-lg font-semibold text-black mb-4">TajaThela</h3>
           <p className="text-sm leading-6">
             We bring fresh vegetables directly from local vendors to your doorstep. 
             Our goal is to support small farmers while providing you with 
@@ -31,18 +31,17 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold text-black mb-4">Contact Us</h3>
           <p className="text-sm">📍 123 Green Street, City, India</p>
-          <p className="text-sm">📞 +91 98765 43210</p>
-          <p className="text-sm">✉️ support@veggieshop.com</p>
+          <p className="text-sm">📞 +91 7701883014</p>
+          <p className="text-sm">✉️ support@tajathela.com</p>
         </div>
 
         {/* Social Media */}
         <div>
           <h3 className="text-lg font-semibold text-black mb-4">Follow Us</h3>
           <div className="flex space-x-4">
-            <a href="#" className="hover:text-white"><FaFacebookF /></a>
             <a href="#" className="hover:text-white"><FaTwitter /></a>
-            <a href="#" className="hover:text-white"><FaInstagram /></a>
-            <a href="#" className="hover:text-white"><FaLinkedinIn /></a>
+            <a href="https://www.instagram.com/its_ujjwalmishra/" className="hover:text-white"><FaInstagram /></a>
+            <a href="https://www.linkedin.com/in/ujjwalmishra7/" className="hover:text-white"><FaLinkedinIn /></a>
           </div>
         </div>
       </div>

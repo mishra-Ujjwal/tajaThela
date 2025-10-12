@@ -22,7 +22,7 @@ const UserDashboard = () => {
       offset;
     window.scrollTo({ top, behavior: "smooth" });
   };
-  console.log(vendor);
+
   return (
     <section>
       <div className="lg:px-24 flex sm:flex-row flex-col-reverse w-screen  pb-10  lg:pt-20 bg-orange-50  ">
