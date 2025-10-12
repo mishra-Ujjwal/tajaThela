@@ -6,7 +6,7 @@ const OrderPlaced = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center bg-orange-50 sm:p-0 px-4 sm:h-[90vh] h-[50vh]">
+    <div className="flex flex-col items-center w-screen justify-center bg-orange-50 sm:p-0 px-4 sm:h-[90vh] h-[50vh]">
       <div className="bg-white p-8 rounded-2xl shadow-md text-center max-w-md">
         <FaCheckCircle className="text-green-500 text-6xl mx-auto mb-4" />
         <h2 className="sm:text-2xl text-xl font-bold mb-2">Order Placed Successfully!</h2>
