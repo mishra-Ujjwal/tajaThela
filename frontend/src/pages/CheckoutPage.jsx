@@ -13,7 +13,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { clearCart } from "../../redux/userSlice";
 import { useNavigate } from "react-router-dom";
-
+import L from "leaflet";
+const userIcon = new L.Icon({
+  iconUrl: "/mapicon.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
 function RecentreMap({ location }) {
   const map = useMap();
 
@@ -156,7 +161,9 @@ const handleCurrentLocation = () => {
       },
       { withCredentials: true }
     );
-
+    if(!response.data.success){
+      toast.error("Please Logged In,You are not authroized")
+    }
     if (paymentMethod === "COD") {
       toast.success("Order placed successfully!");
       dispatch(clearCart());
@@ -327,6 +334,7 @@ const openRazorpayWindow = (razorOrder, cartItems, grandTotal) => {
                   <RecentreMap location={location} />
                   <Marker
                     position={[location.lat, location.long]}
+                    iconUrl={userIcon}
                     draggable
                     eventHandlers={{ dragend: handleDragEnd }}
                   />

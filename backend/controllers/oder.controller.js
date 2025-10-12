@@ -35,7 +35,9 @@ export const placeOrder = async (req, res) => {
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
-
+    if(!userId){
+      return res.status(400).json({ message: "You are Not authorized,Please Login!" });
+    }
     const orderItems = [];
     let total = 0;
 
