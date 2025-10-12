@@ -24,19 +24,20 @@ const VendorPage = () => {
 
   // Add item to cart
   const handleAdd = async ({ vegetableId, name, price, unit, image }) => {
-    const cartItem = cart.find(
-      (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
-    );
-    const newQuantity = (cartItem?.quantity || 0) + 1;
+  const cartItem = cart.find(
+    (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
+  );
+  const newQuantity = (cartItem?.quantity || 0) + 1;
 
-    // Backend
+  try {
+    // Backend call
     await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/user/cart/add`,
       { vendorId, vegetableId, quantity: newQuantity },
       { withCredentials: true }
     );
 
-    // Redux
+    // Redux update only after success
     dispatch(
       handleAddToCart({
         vendorId,
@@ -44,11 +45,20 @@ const VendorPage = () => {
         name,
         price,
         unit,
-        image, // ✅ Pass image
+        image,
         quantity: newQuantity,
       })
     );
-  };
+  } catch (err) {
+    if (err.response && err.response.status === 401) {
+      alert("You are not authorized. Please login first!");
+      navigate("/login");
+    } else {
+      console.error(err);
+      alert("Something went wrong! Please try again.");
+    }
+  }
+};
 
   // Remove item from cart
   const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
