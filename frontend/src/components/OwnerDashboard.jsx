@@ -38,7 +38,7 @@ const OwnerDashboard = () => {
   return (
     <section className="bg-green-100 min-h-screen w-screen flex flex-col sm:flex-row overflow-hidden">
   {/* Sidebar */}
-  <div className="sm:w-1/4 w-full px-4 border-r border-gray-300 h-full mt-4 flex flex-col">
+  <div className="sm:w-1/3 w-full px-4 border-r border-gray-300 h-full mt-4 flex flex-col">
     <h2 className="text-xl font-bold flex items-center gap-2 pb-2">
       <IoCamera size={30} /> Cart Image
     </h2>
@@ -82,12 +82,12 @@ const OwnerDashboard = () => {
   </div>
 
   {/* Product List */}
-  <div className="sm:w-1/4 w-full p-4 h-full overflow-y-auto border-r border-gray-300">
+  <div className="sm:w-1/3 w-full p-4 h-full overflow-y-auto border-r border-gray-300">
     <VendorProductList products={products} />
   </div>
 
   {/* Orders */}
-  <div className="sm:w-1/2 w-full bg-orange-50 h-full overflow-y-auto p-4">
+  <div className="sm:w-1/3 w-full bg-orange-50 h-full overflow-y-auto p-4">
     <OwnerOrder />
   </div>
 </section>
