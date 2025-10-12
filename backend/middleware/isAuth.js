@@ -10,7 +10,7 @@ const isAuth = async (req, res, next) => {
     req.role = decoded.role;
     next();
   } catch (err) {
-    return res.json({ success: false, message: "Invalid or expired token" });
+return res.status(401).json({ success: false, message: "Invalid or expired token" });
   }
 };
 

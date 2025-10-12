@@ -32,11 +32,12 @@ export const placeOrder = async (req, res) => {
     const userId = req.userId;
     const { cartItems, paymentMethod, deliveryAddress, grandTotal } = req.body;
 
-    if (!cartItems || cartItems.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "You are Not authorized, Please Login!" });
     }
-    if(!userId){
-      return res.status(401).json({ message: "You are Not authorized,Please Login!"});
+
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ success: false, message: "Cart is empty" });
     }
     const orderItems = [];
     let total = 0;
