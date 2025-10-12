@@ -48,7 +48,7 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
-        © {new Date().getFullYear()} VeggieShop. All rights reserved.
+        © {new Date().getFullYear()} TajaThela. All rights reserved.
       </div>
     </footer>
   );

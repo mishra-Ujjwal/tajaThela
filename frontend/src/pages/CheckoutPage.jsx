@@ -161,9 +161,7 @@ const handleCurrentLocation = () => {
       },
       { withCredentials: true }
     );
-    if(!response.data.success){
-      toast.error("Please Logged In,You are not authroized")
-    }
+    
     if (paymentMethod === "COD") {
       toast.success("Order placed successfully!");
       dispatch(clearCart());
@@ -173,6 +171,11 @@ const handleCurrentLocation = () => {
       openRazorpayWindow(razorOrder, cartItems, grandTotal);
     }
   } catch (err) {
+    if (err.response?.status === 400 || err.response?.status === 401) {
+  toast.error(err.response?.data?.message || "You are not authorized. Please login.");
+  navigate("/login"); // 👈 redirect to login page
+  return;
+}
     console.error(err);
     toast.error(err.response?.data?.message || "Failed to place order");
   }
