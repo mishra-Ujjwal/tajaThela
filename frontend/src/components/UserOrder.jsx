@@ -16,7 +16,7 @@ const UserOrder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen w-screen bg-gray-100 p-6">
       <h2 className="text-2xl font-bold mb-6">My Orders</h2>
 
       {!userOrder || userOrder.length === 0 ? (
