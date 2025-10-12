@@ -13,7 +13,7 @@ dotenv.config();
 const port = process.env.PORT||5000;
 //cors
 app.use(cors({
-  origin:process.env.FRONTEND_URL,
+  origin:"https://tajathela-wy9b.onrender.com",
   credentials:true,
 }))
 app.use(express.json()) //convert receiving data into json
