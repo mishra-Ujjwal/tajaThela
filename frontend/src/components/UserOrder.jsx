@@ -1,11 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { FaBox, FaRupeeSign, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 import TrackUserOrder from "./TrackUserOrder";
+import axios from "axios";
 
 const UserOrder = () => {
-  const userOrder = useSelector((state) => state.user.myOrders);
+  const user = useSelector((state) => state.user.userData);
+
+  const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const navigate = useNavigate();
+
+  // ✅ Protect route if user not logged in
+  useEffect(() => {
+    if (!user || !user._id) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+ 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user || !user._id) return;
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/user/orders/${user._id}`,
+          { withCredentials: true }
+        );
+        setOrders(res.data.orders || []);
+      } catch (err) {
+        console.error("Error fetching user orders:", err);
+      }
+    };
+    fetchOrders();
+  }, [user]);
 
   const handleTrackOrder = (order) => {
     setSelectedOrder(order);
@@ -19,11 +48,12 @@ const UserOrder = () => {
     <div className="min-h-screen w-screen bg-gray-100 p-6">
       <h2 className="text-2xl font-bold mb-6">My Orders</h2>
 
-      {!userOrder || userOrder.length === 0 ? (
+      {/* Handle loading and empty state */}
+      {!orders || orders.length === 0 ? (
         <p className="text-gray-600">You have not placed any orders yet.</p>
       ) : (
         <div className="space-y-6">
-          {userOrder.map((order) => (
+          {orders.map((order) => (
             <div
               key={order._id}
               className="bg-white shadow-md rounded-xl p-6 border border-gray-200"
@@ -111,7 +141,7 @@ const UserOrder = () => {
                 <div className="mt-4 flex justify-end">
                   <div
                     onClick={() => handleTrackOrder(order)}
-                    className="flex items-center gap-2 !bg-blue-600 hover:!bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+                    className="flex items-center gap-2 !bg-blue-600 hover:!bg-blue-700 text-white px-4 py-2 rounded-lg shadow cursor-pointer"
                   >
                     <FaMapMarkerAlt />
                     Track Order
