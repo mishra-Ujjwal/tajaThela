@@ -1,4 +1,3 @@
-// VendorPage.js
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,13 +7,16 @@ import { FaStar } from "react-icons/fa";
 import { MdOutlineVerified } from "react-icons/md";
 import { handleAddToCart, handleRemoveFromCart } from "../../redux/userSlice";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const VendorPage = () => {
   const { vendorId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const allVendor = useSelector((state) => state.vendor.vendorData);
   const cart = useSelector((state) => state.user.cartItems);
+  const user = useSelector((state) => state.user.userData); // ✅ User info for protection
 
   const vendor = allVendor?.find(
     (v) => v?.vendorId?._id?.toString() === vendorId?.toString()
@@ -22,109 +24,96 @@ const VendorPage = () => {
 
   const [showCartMobile, setShowCartMobile] = useState(false);
 
-  // Add item to cart
- const handleAdd = async ({ vegetableId, name, price, unit, image }) => {
-  const cartItem = cart.find(
-    (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
-  );
-  const newQuantity = (cartItem?.quantity || 0) + 1;
+  // ✅ Add to cart with auth check
+  const handleAdd = async ({ vegetableId, name, price, unit, image }) => {
+    if (!user || !user._id) {
+      toast.error("Please login to add items to cart");
+      navigate("/login");
+      return;
+    }
 
-  try {
-    // Backend request
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/user/cart/add`,
-      { vendorId, vegetableId, quantity: newQuantity },
-      { withCredentials: true }
+    const cartItem = cart.find(
+      (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
     );
+    const newQuantity = (cartItem?.quantity || 0) + 1;
 
-    // Redux update
-    dispatch(
-      handleAddToCart({
-        vendorId,
-        vegetableId,
-        name,
-        price,
-        unit,
-        image,
-        quantity: newQuantity,
-      })
-    );
-    toast.success(`${name} added to cart`);
-  } catch (err) {
-    console.error("Add to cart error:", err);
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/user/cart/add`,
+        { vendorId, vegetableId, quantity: newQuantity },
+        { withCredentials: true }
+      );
 
-    if (err.response) {
-      if (err.response.status === 401) {
-        toast.error("❌ You are not authorized. Please login first!");
+      dispatch(
+        handleAddToCart({
+          vendorId,
+          vegetableId,
+          name,
+          price,
+          unit,
+          image,
+          quantity: newQuantity,
+        })
+      );
+      toast.success(`${name} added to cart`);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        toast.error("Please login to continue");
         navigate("/login");
       } else {
-        toast.error(err.response.data?.message || "Failed to add item to cart");
+        toast.error(err.response?.data?.message || "Failed to add item");
       }
-    } else if (err.request) {
-      toast.error("No response from server. Check your network.");
-    } else {
-      toast.error(err.message);
     }
-  }
-};
+  };
 
-// Remove item from cart
-const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
-  const cartItem = cart.find(
-    (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
-  );
-  if (!cartItem) return;
+  // ✅ Remove from cart with auth check
+  const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
+    if (!user || !user._id) {
+      toast.error("Please login to remove items");
+      navigate("/login");
+      return;
+    }
 
-  const newQuantity = cartItem.quantity - 1;
-
-  try {
-    // Backend request
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/user/cart/remove`,
-      { vendorId, vegetableId, quantity: newQuantity },
-      { withCredentials: true }
+    const cartItem = cart.find(
+      (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
     );
+    if (!cartItem) return;
 
-    // Redux update
-    dispatch(
-      handleRemoveFromCart({
-        vendorId,
-        vegetableId,
-        quantity: newQuantity,
-        image,
-      })
-    );
-    toast.info(`${name} removed from cart`);
-  } catch (err) {
-    console.error("Remove from cart error:", err);
+    const newQuantity = cartItem.quantity - 1;
 
-    if (err.response) {
-      if (err.response.status === 401) {
-        toast.error("❌ You are not authorized. Please login first!");
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/user/cart/remove`,
+        { vendorId, vegetableId, quantity: newQuantity },
+        { withCredentials: true }
+      );
+
+      dispatch(
+        handleRemoveFromCart({
+          vendorId,
+          vegetableId,
+          quantity: newQuantity,
+          image,
+        })
+      );
+      toast.info(`${name} removed from cart`);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        toast.error("Please login to continue");
         navigate("/login");
       } else {
-        toast.error(err.response.data?.message || "Failed to remove item from cart");
+        toast.error(err.response?.data?.message || "Failed to remove item");
       }
-    } else if (err.request) {
-      toast.error("No response from server. Check your network.");
-    } else {
-      toast.error(err.message);
     }
-  }
-};
+  };
 
-  // Calculate subtotal
-  const subtotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-
-  // Delivery logic
+  // 🧮 Billing calculation
+  const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shippingFee = 10;
   const deliveryCharge = subtotal >= 200 ? 0 : 40;
   const total = subtotal + deliveryCharge + shippingFee;
 
-  // CartBox component
+  // 🛒 Cart Box
   const CartBox = () => (
     <div>
       <h2 className="text-xl font-semibold mb-3">Your Cart</h2>
@@ -157,7 +146,7 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
                         image: item.image,
                       })
                     }
-                    className="px-2 text-lg font-bold bg-red-500 text-white rounded"
+                    className="px-2 text-lg font-bold bg-red-500 text-white rounded cursor-pointer"
                   >
                     -
                   </div>
@@ -172,7 +161,7 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
                         image: item.image,
                       })
                     }
-                    className="px-2 text-lg font-bold bg-green-500 text-white rounded"
+                    className="px-2 text-lg font-bold bg-green-500 text-white rounded cursor-pointer"
                   >
                     +
                   </div>
@@ -196,19 +185,19 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
             </div>
             <div className="flex justify-between mb-2">
               <span>Shipping Fee</span>
-              <span>{shippingFee}</span>
+              <span>₹{shippingFee}</span>
             </div>
-             <div className="flex justify-between">
-          <span>Delivery Fee</span>
-          {deliveryCharge === 0 ? (
-            <span>
-              <span className="line-through text-gray-500">₹25</span>{" "}
-              <span className="text-green-600">Free</span>
-            </span>
-          ) : (
-            <span>₹{deliveryCharge}</span>
-          )}
-        </div>
+            <div className="flex justify-between">
+              <span>Delivery Fee</span>
+              {deliveryCharge === 0 ? (
+                <span>
+                  <span className="line-through text-gray-500">₹25</span>{" "}
+                  <span className="text-green-600">Free</span>
+                </span>
+              ) : (
+                <span>₹{deliveryCharge}</span>
+              )}
+            </div>
 
             <hr className="my-2" />
 
@@ -218,8 +207,17 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
             </div>
           </div>
           <div
-            className="py-3 px-4 rounded-lg bg-green-800 font-semibold text-white"
-            onClick={() => navigate("/checkout")}
+            className={`py-3 px-4 rounded-lg font-semibold text-white text-center ${
+              !user ? "bg-gray-400 cursor-not-allowed" : "bg-green-800 cursor-pointer"
+            }`}
+            onClick={() => {
+              if (!user || !user._id) {
+                toast.error("Please login to continue");
+                navigate("/login");
+                return;
+              }
+              navigate("/checkout");
+            }}
           >
             Proceed to checkout
           </div>
@@ -230,7 +228,7 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
 
   return (
     <section className="min-h-[calc(100vh-80px)] w-screen">
-      {/* Vendor Details */}
+      {/* 🧾 Vendor Details */}
       <div className="w-screen bg-orange-50 px-4 py-4 lg:px-28">
         <div className="flex items-center sm:flex-row flex-col gap-4">
           <div className="sm:w-45 w-35 rounded-xl overflow-hidden">
@@ -246,18 +244,15 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
             </p>
             <div className="flex items-center gap-1">
               <CiLocationOn size={20} />
-              <p className="line-clamp-2 sm:w-full ">
-                {vendor?.vendorId?.city}
-              </p>
+              <p className="line-clamp-2 sm:w-full ">{vendor?.vendorId?.city}</p>
             </div>
             <div className="flex gap-2 items-center text-lg">
               <div className="flex items-center text-yellow-500">
                 {[...Array(5)].map((_, idx) => (
                   <FaStar key={idx} className="w-4" />
-                ))}{" "}
-                <p className="text-black">(124 Reviews)</p>
+                ))}
+                <p className="text-black ml-1">(124 Reviews)</p>
               </div>
-
               <div className="flex items-center gap-1">
                 <MdOutlineVerified />
                 <p>Organic Verified</p>
@@ -267,7 +262,7 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
         </div>
       </div>
 
-      {/* Products + Cart */}
+      {/* 🥦 Products + Cart */}
       <div className="pt-5 px-4 py-4 lg:px-28">
         <div className="flex gap-4 items-start">
           {/* Products */}
@@ -278,8 +273,7 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
                 const cartItem = cart.find(
                   (item) =>
                     item.vendorId === vendorId &&
-                    item.vegetableId ===
-                      (veg.vegetableId?._id || veg.vegetableId)
+                    item.vegetableId === (veg.vegetableId?._id || veg.vegetableId)
                 );
                 return (
                   <div
@@ -308,10 +302,10 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
                               name: veg.vegetableId.name,
                               price: veg.price,
                               unit: veg.unit,
-                              image: veg.vegetableId.image, // ✅ Pass image
+                              image: veg.vegetableId.image,
                             })
                           }
-                          className="px-3 py-0 text-xl font-bold !bg-red-500 text-white rounded"
+                          className="px-3 py-0 text-xl font-bold bg-red-500 text-white rounded cursor-pointer"
                         >
                           -
                         </div>
@@ -325,26 +319,35 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
                               name: veg.vegetableId.name,
                               price: veg.price,
                               unit: veg.unit,
-                              image: veg.vegetableId.image, // ✅ Pass image
+                              image: veg.vegetableId.image,
                             })
                           }
-                          className="px-3 py-0 text-xl font-bold !bg-green-500 text-white rounded"
+                          className="px-3 py-0 text-xl font-bold bg-green-500 text-white rounded cursor-pointer"
                         >
                           +
                         </div>
                       </div>
                     ) : (
                       <div
-                        onClick={() =>
+                        onClick={() => {
+                          if (!user || !user._id) {
+                            toast.error("Please login first");
+                            navigate("/login");
+                            return;
+                          }
                           handleAdd({
                             vegetableId: veg.vegetableId._id,
                             name: veg.vegetableId.name,
                             price: veg.price,
                             unit: veg.unit,
-                            image: veg.vegetableId.image, // ✅ Pass image
-                          })
-                        }
-                        className="mt-2 px-3 py-1 !bg-green-500 text-white rounded hover:!bg-green-600"
+                            image: veg.vegetableId.image,
+                          });
+                        }}
+                        className={`mt-2 px-3 py-1 rounded text-white ${
+                          !user
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-green-500 hover:bg-green-600 cursor-pointer"
+                        }`}
                       >
                         Add
                       </div>
@@ -362,13 +365,12 @@ const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
         </div>
       </div>
 
-      {/* Cart - Mobile floating button */}
+      {/* Cart - Mobile Floating */}
       <div
         className="lg:hidden fixed bottom-0 left-0 w-full bg-green-600 text-white py-3 px-4 flex justify-between items-center cursor-pointer"
         onClick={() => setShowCartMobile(true)}
       >
-        <span>Cart ({cart.length>0 ? total : 0})</span>
-
+        <span>Cart (₹{cart.length > 0 ? total : 0})</span>
       </div>
 
       {/* Cart Drawer - Mobile */}
