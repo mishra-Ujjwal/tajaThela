@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -21,14 +21,18 @@ export default function LoginPage() {
 
       if (res.data.success) {
         toast.success("Login successful!");
-            dispatch(setUserData(res.data.user))
+        dispatch(setUserData(res.data.user));
         navigate("/");
       } else {
         toast.error(res.data.message);
       }
     } catch (err) {
-      console.log(err.message);
-      toast.error("Something went wrong!");
+      console.log(err);
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Something went wrong!");
+      }
     }
   };
 
@@ -69,7 +73,10 @@ export default function LoginPage() {
 
           {/* Forgot Password */}
           <div className="text-right">
-            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:underline"
+            >
               Forgot Password?
             </Link>
           </div>
@@ -86,7 +93,10 @@ export default function LoginPage() {
         {/* Signup link */}
         <p className="mt-4 text-center text-sm">
           Don’t have an account?{" "}
-          <Link to="/signup" className="!text-green-800 hover:underline font-semibold">
+          <Link
+            to="/signup"
+            className="!text-green-800 hover:underline font-semibold"
+          >
             Signup
           </Link>
         </p>
