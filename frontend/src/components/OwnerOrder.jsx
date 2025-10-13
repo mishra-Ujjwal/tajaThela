@@ -44,7 +44,7 @@ const OwnerOrder = () => {
   console.log(orders);
 
   return (
-    <div className="min-h-screen pt-4 px-4">
+    <div className="min-h-screen w-screen pt-4 px-4">
       <h2 className="text-2xl font-bold mb-6">Orders For You</h2>
 
       {orders.length === 0 ? (
