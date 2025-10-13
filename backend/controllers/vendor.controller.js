@@ -12,14 +12,13 @@ export const allVendor = async (req, res) => {
 };
 export const updateCartImage = async (req, res) => {
   try {
-    const vendorId = req.userId; // assuming you have auth middleware that sets req.userId
+    const vendorId = req.userId; // set by isAuth middleware
     const { cartImage } = req.body;
 
     if (!cartImage) {
       return res.status(400).json({ success: false, message: "cartImage is required" });
     }
 
-    // Find the vendorProduct and update cartImage
     const updatedVendorProduct = await VendorProduct.findOneAndUpdate(
       { vendorId },
       { cartImage },

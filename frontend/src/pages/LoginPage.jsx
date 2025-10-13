@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -20,14 +21,14 @@ export default function LoginPage() {
       );
 
       if (res.data.success) {
-        toast.success("Login successful!");
         dispatch(setUserData(res.data.user));
+        toast.success("Login successful!");
         navigate("/");
       } else {
-        toast.error(res.data.message);
+        toast.error(res.data.message || "Login failed");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       if (err.response?.data?.message) {
         toast.error(err.response.data.message);
       } else {
@@ -45,7 +46,6 @@ export default function LoginPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleLogin}>
-          {/* Email */}
           <div>
             <label className="block mb-1 font-medium">Email</label>
             <input
@@ -58,7 +58,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block mb-1 font-medium">Password</label>
             <input
@@ -71,7 +70,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Forgot Password */}
           <div className="text-right">
             <Link
               to="/forgot-password"
@@ -81,7 +79,6 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             className="w-full !bg-orange-600 border-none outline-none hover:!bg-orange-700 text-white rounded-lg py-2 font-semibold transition duration-300"
@@ -90,7 +87,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Signup link */}
         <p className="mt-4 text-center text-sm">
           Don’t have an account?{" "}
           <Link

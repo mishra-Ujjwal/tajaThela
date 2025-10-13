@@ -8,10 +8,9 @@ const ImageUpload = ({ onUpload }) => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    }
+    if (!selectedFile) return;
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
   };
 
   const handleUpload = async () => {
@@ -31,7 +30,6 @@ const ImageUpload = ({ onUpload }) => {
         }
       );
 
-      // ✅ Pass only the URL string
       if (onUpload) onUpload(data.url);
 
       setFile(null);
@@ -60,7 +58,7 @@ const ImageUpload = ({ onUpload }) => {
       />
 
       {preview && (
-        <div className="w-80 h-30 overflow-hidden rounded-lg border relative">
+        <div className="w-80 h-32 overflow-hidden rounded-lg border relative">
           <img src={preview} alt="Preview" className="w-full h-full object-cover" />
           {uploading && (
             <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white font-bold">
