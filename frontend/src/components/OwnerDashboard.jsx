@@ -36,7 +36,7 @@ const OwnerDashboard = () => {
 
   return (
     <section className="bg-green-100 min-h-screen w-screen p-4">
-  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+  <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
     {/* Sidebar - 2/5 */}
     <div className="md:col-span-2 flex flex-col border border-gray-300 p-4 rounded-lg">
       <h2 className="text-xl font-bold flex items-center gap-2 pb-2">
@@ -86,7 +86,7 @@ const OwnerDashboard = () => {
     </div>
 
     {/* Orders - 1/5 */}
-    <div className="md:col-span-1 flex flex-col bg-orange-50 p-4 rounded-lg overflow-y-auto">
+    <div className="md:col-span-4 flex flex-col bg-orange-50 p-4 rounded-lg overflow-y-auto">
       <OwnerOrder />
     </div>
   </div>
