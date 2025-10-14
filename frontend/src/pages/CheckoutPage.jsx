@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { MdOutlinePayment } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
 import { BiCurrentLocation } from "react-icons/bi";
+import { IoIosSearch } from "react-icons/io";
+import { useDispatch, useSelector } from "react-redux";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import useGetLocation from "../../Hooks/useGetLocation";
-import { setAddress, setLocation } from "../../redux/mapSlice";
-import { IoIosSearch } from "react-icons/io";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { clearCart } from "../../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 import L from "leaflet";
-import { FaSpinner } from "react-icons/fa"; // 👈 for loader spinner
 
+import useGetLocation from "../../Hooks/useGetLocation";
+import { setAddress, setLocation } from "../../redux/mapSlice";
+import { clearCart } from "../../redux/userSlice";
+
+// ✅ Custom User Icon
 const userIcon = new L.Icon({
   iconUrl: "/mapicon.png",
   iconSize: [40, 40],
@@ -23,11 +24,13 @@ const userIcon = new L.Icon({
 
 function RecentreMap({ location }) {
   const map = useMap();
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (location.lat && location.long) {
       map.setView([location.lat, location.long], 16, { animate: true });
     }
   }, [location, map]);
+
   return null;
 }
 
@@ -36,24 +39,26 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const [addressInput, setAddressInput] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
-  const [isPlacingOrder, setIsPlacingOrder] = useState(false); // 👈 added state
 
   useGetLocation();
   const { location, address } = useSelector((state) => state.map);
   const cart = useSelector((state) => state.user.cartItems);
   const center = [location?.lat, location?.long];
 
-  // 🌍 handle map drag
+  // 📍 Handle Marker Drag
   const handleDragEnd = (e) => {
     const { lat, lng } = e.target._latlng;
     dispatch(setLocation({ lat, long: lng }));
     getAddressBylatlong({ lat, long: lng });
   };
 
+  // 📍 Reverse Geocoding
   const getAddressBylatlong = async (loc) => {
     try {
       const geolocation = await axios.get(
-        `https://api.geoapify.com/v1/geocode/reverse?lat=${loc.lat}&lon=${loc.long}&format=json&apiKey=${import.meta.env.VITE_GEO_APIFY_API}`
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${loc.lat}&lon=${loc.long}&format=json&apiKey=${
+          import.meta.env.VITE_GEO_APIFY_API
+        }`
       );
       const city =
         geolocation.data.results[0].formatted ||
@@ -64,19 +69,25 @@ const CheckoutPage = () => {
     }
   };
 
+  // 📍 Current Location
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const latitude = pos.coords.latitude;
         const longitude = pos.coords.longitude;
+
         dispatch(setLocation({ lat: latitude, long: longitude }));
+
         axios
           .get(
-            `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${import.meta.env.VITE_GEO_APIFY_API}`
+            `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${
+              import.meta.env.VITE_GEO_APIFY_API
+            }`
           )
           .then((res) => {
             const city =
@@ -93,6 +104,7 @@ const CheckoutPage = () => {
     );
   };
 
+  // 📍 Forward Geocoding
   const getLatLngByAddress = async () => {
     try {
       const result = await axios.get(
@@ -112,20 +124,17 @@ const CheckoutPage = () => {
     setAddressInput(address);
   }, [address]);
 
-  // 🛒 Billing calculations
+  // 🧾 Cart Calculations
   const itemsTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
   const shippingFee = 10;
   const deliveryFee = itemsTotal >= 200 ? 0 : 40;
-  const grandTotal =
-    cart.length > 0 ? itemsTotal + shippingFee + deliveryFee : 0;
+  const grandTotal = cart.length > 0 ? itemsTotal + shippingFee + deliveryFee : 0;
 
   // 🧾 Place Order
   const handlePlaceOrder = async () => {
-    if (isPlacingOrder) return; // 🚫 Prevent double click
-
     if (!location.lat || !location.long) {
       toast.error("Fetching location... Please wait.");
       return;
@@ -138,8 +147,6 @@ const CheckoutPage = () => {
       toast.error("Cart is empty");
       return;
     }
-
-    setIsPlacingOrder(true); // 🔥 Start loading
 
     try {
       const response = await axios.post(
@@ -171,15 +178,14 @@ const CheckoutPage = () => {
           err.response?.data?.message || "You are not authorized. Please login."
         );
         navigate("/login");
-      } else {
-        toast.error(err.response?.data?.message || "Failed to place order");
+        return;
       }
       console.error(err);
-    } finally {
-      setIsPlacingOrder(false); // ✅ Stop loading
+      toast.error(err.response?.data?.message || "Failed to place order");
     }
   };
 
+  // 💳 Razorpay
   const openRazorpayWindow = (razorOrder, cartItems, grandTotal) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -216,20 +222,23 @@ const CheckoutPage = () => {
         } catch (err) {
           console.error(err);
           toast.error("Payment verification failed");
-        } finally {
-          setIsPlacingOrder(false); // also reset here
         }
       },
-      modal: { ondismiss: () => toast.info("Payment popup closed") },
-      theme: { color: "#F37254" },
+      modal: {
+        ondismiss: () => toast.info("Payment popup closed"),
+      },
+      theme: {
+        color: "#F37254",
+      },
     };
+
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
 
   // 🧾 Billing Box
   const CartBox = () => (
-    <div className="h-auto sm:w-lg flex flex-col ">
+    <div className="h-auto sm:w-lg flex flex-col">
       <p className="text-xl font-semibold mb-2 w-full">Billing</p>
       <div className="flex-1 overflow-y-auto pb-2">
         {cart.length > 0 ? (
@@ -261,6 +270,7 @@ const CheckoutPage = () => {
         )}
       </div>
 
+      {/* Billing Summary */}
       <div className="border-t pt-2 text-sm px-1">
         <div className="flex justify-between">
           <span>Items Total</span>
@@ -292,28 +302,110 @@ const CheckoutPage = () => {
   return (
     <section>
       <div className="w-screen min-h-[100vh] bg-orange-50 p-6 shadow-md rounded-lg sm:flex justify-center sm:gap-4 gap-2">
-        {/* Delivery Section */}
-        {/* ... location and payment code remains same ... */}
+        {/* 🏠 Delivery Section */}
+        <div className="sm:w-1/3 w-full">
+          <h2 className="text-2xl font-semibold mb-4">Checkout</h2>
 
-        {/* Order Summary */}
+          {/* 📍 Location Section */}
+          <div className="mb-6">
+            <div className="flex items-center text-red-600 font-medium mb-2">
+              <FaMapMarkerAlt className="mr-2" />
+              Delivery Location
+            </div>
+
+            <div
+              className="w-full text-center font-medium cursor-pointer bg-white p-3 border rounded-lg flex items-center gap-2"
+              onClick={handleCurrentLocation}
+            >
+              Use My Current Location <BiCurrentLocation size={30} />
+            </div>
+
+            <div className="text-center text-lg font-semibold">OR</div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                className="w-full p-2 border rounded-md mb-3 text-lg"
+                placeholder={address ? address : "Fetching your address..."}
+                value={addressInput}
+                onChange={(e) => setAddressInput(e.target.value)}
+              />
+              <div
+                className="px-2 py-2 rounded-lg mb-3 bg-red-500 text-white font-bold cursor-pointer"
+                onClick={getLatLngByAddress}
+              >
+                <IoIosSearch size={25} />
+              </div>
+            </div>
+
+            <div className="w-full h-56 border rounded-md overflow-hidden">
+              {location?.lat && location?.long ? (
+                <MapContainer className="w-full h-full" center={center} zoom={15}>
+                  <TileLayer
+                    attribution="&copy; OpenStreetMap contributors"
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <RecentreMap location={location} />
+                  <Marker
+                    position={[location.lat, location.long]}
+                    icon={userIcon}
+                    draggable
+                    eventHandlers={{ dragend: handleDragEnd }}
+                  />
+                </MapContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  Getting your location...
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 💳 Payment Method */}
+          <div className="mb-6">
+            <p className="text-lg font-semibold mb-3 flex items-center">
+              <MdOutlinePayment className="mr-2" />
+              Payment Method
+            </p>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div
+                className={`border rounded-md p-4 cursor-pointer ${
+                  paymentMethod === "COD"
+                    ? "border-green-500 bg-green-50"
+                    : "border-gray-300"
+                }`}
+                onClick={() => setPaymentMethod("COD")}
+              >
+                <p className="font-medium">Cash on Delivery</p>
+                <p className="text-sm text-gray-500">
+                  Pay when your food arrives
+                </p>
+              </div>
+
+              <div
+                className={`border rounded-md p-4 cursor-pointer ${
+                  paymentMethod === "ONLINE"
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-300"
+                }`}
+                onClick={() => setPaymentMethod("ONLINE")}
+              >
+                <p className="font-medium">UPI / Card</p>
+                <p className="text-sm text-gray-500">Pay securely online</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 🧾 Order Summary */}
         <div className="sm:pt-10">
           <CartBox />
           <div
-            className={`w-full text-center text-white py-3 rounded-md text-lg font-semibold transition ${
-              isPlacingOrder
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700 cursor-pointer"
-            }`}
-            onClick={!isPlacingOrder ? handlePlaceOrder : undefined}
+            className="w-full bg-red-600 text-center text-white py-3 rounded-md text-lg font-semibold hover:bg-red-700 transition"
+            onClick={handlePlaceOrder}
           >
-            {isPlacingOrder ? (
-              <span className="flex items-center justify-center gap-2">
-                <FaSpinner className="animate-spin" />
-                Placing Order...
-              </span>
-            ) : (
-              "Place Order"
-            )}
+            Place Order
           </div>
         </div>
       </div>

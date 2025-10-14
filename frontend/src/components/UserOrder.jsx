@@ -1,40 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { FaBox, FaRupeeSign, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 import TrackUserOrder from "./TrackUserOrder";
-import axios from "axios";
 
 const UserOrder = () => {
-  const user = useSelector((state) => state.user.userData);
-
-  const [orders, setOrders] = useState([]);
+  const userOrder = useSelector((state) => state.user.myOrders);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const navigate = useNavigate();
-
-  // ✅ Protect route if user not logged in
-  useEffect(() => {
-    if (!user || !user._id) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
-
- 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (!user || !user._id) return;
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/user/orders/${user._id}`,
-          { withCredentials: true }
-        );
-        setOrders(res.data.orders || []);
-      } catch (err) {
-        console.error("Error fetching user orders:", err);
-      }
-    };
-    fetchOrders();
-  }, [user]);
 
   const handleTrackOrder = (order) => {
     setSelectedOrder(order);
@@ -48,12 +19,12 @@ const UserOrder = () => {
     <div className="min-h-screen w-screen bg-gray-100 p-6">
       <h2 className="text-2xl font-bold mb-6">My Orders</h2>
 
-      {/* Handle loading and empty state */}
-      {!orders || orders.length === 0 ? (
+      {/* No Orders */}
+      {!userOrder || userOrder.length === 0 ? (
         <p className="text-gray-600">You have not placed any orders yet.</p>
       ) : (
         <div className="space-y-6">
-          {orders.map((order) => (
+          {userOrder.map((order) => (
             <div
               key={order._id}
               className="bg-white shadow-md rounded-xl p-6 border border-gray-200"
@@ -64,15 +35,16 @@ const UserOrder = () => {
                   <FaBox className="text-green-500" /> Order #{order._id}
                 </h2>
                 <span
-                  className={`text-sm px-3 py-1 rounded-full absolute top-0 right-0 ${
-                    order.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : order.status === "Preparing"
-                      ? "bg-blue-100 text-blue-700"
-                      : order.status === "Out for Delivery"
-                      ? "bg-purple-100 text-purple-700"
-                      : "bg-green-100 text-green-700"
-                  }`}
+                  className={`text-sm px-3 py-1 rounded-full absolute top-0 right-0
+                    ${
+                      order.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : order.status === "Preparing"
+                        ? "bg-blue-100 text-blue-700"
+                        : order.status === "Out for Delivery"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
                 >
                   {order.status}
                 </span>
@@ -112,7 +84,8 @@ const UserOrder = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1 font-semibold">
-                        <FaRupeeSign /> {p.price * p.quantity}
+                        <FaRupeeSign />
+                        {p.price * p.quantity}
                       </div>
                     </div>
                   ))}
@@ -120,7 +93,8 @@ const UserOrder = () => {
                   <div className="flex justify-end font-bold text-gray-800 mt-2">
                     Subtotal:
                     <span className="flex items-center gap-1 ml-2">
-                      <FaRupeeSign /> {vendor.subtotal}
+                      <FaRupeeSign />
+                      {vendor.subtotal}
                     </span>
                   </div>
                 </div>
@@ -132,20 +106,20 @@ const UserOrder = () => {
                   Total: <FaRupeeSign /> {order.grandTotal}
                 </span>
                 <span className="flex items-center gap-1 text-sm text-gray-500">
-                  <FaClock /> {new Date(order.createdAt).toLocaleString()}
+                  <FaClock />
+                  {new Date(order.createdAt).toLocaleString()}
                 </span>
               </div>
 
-              {/* Show tracking button only if Out for Delivery */}
+              {/* Track Order Button */}
               {order.status === "Out for Delivery" && (
                 <div className="mt-4 flex justify-end">
-                  <div
+                  <button
                     onClick={() => handleTrackOrder(order)}
-                    className="flex items-center gap-2 !bg-blue-600 hover:!bg-blue-700 text-white px-4 py-2 rounded-lg shadow cursor-pointer"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
                   >
-                    <FaMapMarkerAlt />
-                    Track Order
-                  </div>
+                    <FaMapMarkerAlt /> Track Order
+                  </button>
                 </div>
               )}
             </div>
