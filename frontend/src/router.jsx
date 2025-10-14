@@ -27,15 +27,12 @@ const router = createBrowserRouter([
       {
         path: "checkout",
         element: (
-        
             <CheckoutPage />
-        
         ),
       },
       {
         path: "user-orders",
         element: (
-          
             <UserOrder />
          
         ),
@@ -43,17 +40,13 @@ const router = createBrowserRouter([
       {
         path: "owner-orders",
         element: (
-        
             <OwnerOrder />
-
         ),
       },
       {
         path: "order-placed",
         element: (
-
             <OrderPlaced />
-
         ),
       },
     ],

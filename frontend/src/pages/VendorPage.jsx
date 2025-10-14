@@ -26,11 +26,7 @@ const VendorPage = () => {
 
   // ✅ Add to cart with auth check
   const handleAdd = async ({ vegetableId, name, price, unit, image }) => {
-    if (!user || !user._id) {
-      toast.error("Please login to add items to cart");
-      navigate("/login");
-      return;
-    }
+    
 
     const cartItem = cart.find(
       (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
@@ -68,11 +64,7 @@ const VendorPage = () => {
 
   // ✅ Remove from cart with auth check
   const handleRemove = async ({ vegetableId, name, price, unit, image }) => {
-    if (!user || !user._id) {
-      toast.error("Please login to remove items");
-      navigate("/login");
-      return;
-    }
+   
 
     const cartItem = cart.find(
       (item) => item.vendorId === vendorId && item.vegetableId === vegetableId
