@@ -27,33 +27,33 @@ const router = createBrowserRouter([
       {
         path: "checkout",
         element: (
-          <ProtectedRoute>
+        
             <CheckoutPage />
-          </ProtectedRoute>
+        
         ),
       },
       {
         path: "user-orders",
         element: (
-          <ProtectedRoute>
+          
             <UserOrder />
-          </ProtectedRoute>
+         
         ),
       },
       {
         path: "owner-orders",
         element: (
-          <ProtectedRoute>
+        
             <OwnerOrder />
-          </ProtectedRoute>
+
         ),
       },
       {
         path: "order-placed",
         element: (
-          <ProtectedRoute>
+
             <OrderPlaced />
-          </ProtectedRoute>
+
         ),
       },
     ],
