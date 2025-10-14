@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaMapMarkerAlt, FaSpinner } from "react-icons/fa";
 import { MdOutlinePayment } from "react-icons/md";
 import { BiCurrentLocation } from "react-icons/bi";
 import { IoIosSearch } from "react-icons/io";
@@ -15,7 +15,6 @@ import useGetLocation from "../../Hooks/useGetLocation";
 import { setAddress, setLocation } from "../../redux/mapSlice";
 import { clearCart } from "../../redux/userSlice";
 
-// ✅ Custom User Icon
 const userIcon = new L.Icon({
   iconUrl: "/mapicon.png",
   iconSize: [40, 40],
@@ -24,13 +23,11 @@ const userIcon = new L.Icon({
 
 function RecentreMap({ location }) {
   const map = useMap();
-
   useEffect(() => {
     if (location.lat && location.long) {
       map.setView([location.lat, location.long], 16, { animate: true });
     }
   }, [location, map]);
-
   return null;
 }
 
@@ -39,20 +36,19 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const [addressInput, setAddressInput] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   useGetLocation();
   const { location, address } = useSelector((state) => state.map);
   const cart = useSelector((state) => state.user.cartItems);
   const center = [location?.lat, location?.long];
 
-  // 📍 Handle Marker Drag
   const handleDragEnd = (e) => {
     const { lat, lng } = e.target._latlng;
     dispatch(setLocation({ lat, long: lng }));
     getAddressBylatlong({ lat, long: lng });
   };
 
-  // 📍 Reverse Geocoding
   const getAddressBylatlong = async (loc) => {
     try {
       const geolocation = await axios.get(
@@ -69,7 +65,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // 📍 Current Location
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
@@ -104,7 +99,6 @@ const CheckoutPage = () => {
     );
   };
 
-  // 📍 Forward Geocoding
   const getLatLngByAddress = async () => {
     try {
       const result = await axios.get(
@@ -124,7 +118,6 @@ const CheckoutPage = () => {
     setAddressInput(address);
   }, [address]);
 
-  // 🧾 Cart Calculations
   const itemsTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -133,7 +126,6 @@ const CheckoutPage = () => {
   const deliveryFee = itemsTotal >= 200 ? 0 : 40;
   const grandTotal = cart.length > 0 ? itemsTotal + shippingFee + deliveryFee : 0;
 
-  // 🧾 Place Order
   const handlePlaceOrder = async () => {
     if (!location.lat || !location.long) {
       toast.error("Fetching location... Please wait.");
@@ -148,6 +140,7 @@ const CheckoutPage = () => {
       return;
     }
 
+    setIsPlacingOrder(true);
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/user/place-order`,
@@ -178,14 +171,14 @@ const CheckoutPage = () => {
           err.response?.data?.message || "You are not authorized. Please login."
         );
         navigate("/login");
-        return;
+      } else {
+        toast.error(err.response?.data?.message || "Failed to place order");
       }
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to place order");
+    } finally {
+      setIsPlacingOrder(false);
     }
   };
 
-  // 💳 Razorpay
   const openRazorpayWindow = (razorOrder, cartItems, grandTotal) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -224,19 +217,13 @@ const CheckoutPage = () => {
           toast.error("Payment verification failed");
         }
       },
-      modal: {
-        ondismiss: () => toast.info("Payment popup closed"),
-      },
-      theme: {
-        color: "#F37254",
-      },
+      modal: { ondismiss: () => toast.info("Payment popup closed") },
+      theme: { color: "#F37254" },
     };
-
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
 
-  // 🧾 Billing Box
   const CartBox = () => (
     <div className="h-auto sm:w-lg flex flex-col">
       <p className="text-xl font-semibold mb-2 w-full">Billing</p>
@@ -269,8 +256,6 @@ const CheckoutPage = () => {
           <p>No items in cart</p>
         )}
       </div>
-
-      {/* Billing Summary */}
       <div className="border-t pt-2 text-sm px-1">
         <div className="flex justify-between">
           <span>Items Total</span>
@@ -402,10 +387,21 @@ const CheckoutPage = () => {
         <div className="sm:pt-10">
           <CartBox />
           <div
-            className="w-full bg-red-600 text-center text-white py-3 rounded-md text-lg font-semibold hover:bg-red-700 transition"
-            onClick={handlePlaceOrder}
+            className={`w-full text-center text-white py-3 rounded-md text-lg font-semibold transition ${
+              isPlacingOrder
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700 cursor-pointer"
+            }`}
+            onClick={!isPlacingOrder ? handlePlaceOrder : undefined}
           >
-            Place Order
+            {isPlacingOrder ? (
+              <span className="flex items-center justify-center gap-2">
+                <FaSpinner className="animate-spin" />
+                Placing Order...
+              </span>
+            ) : (
+              "Place Order"
+            )}
           </div>
         </div>
       </div>

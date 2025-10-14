@@ -51,7 +51,6 @@ const VendorPage = () => {
           quantity: newQuantity,
         })
       );
-      toast.success(`${name} added to cart`);
     } catch (err) {
       if (err.response?.status === 401) {
         toast.error("Please login to continue");
@@ -88,7 +87,7 @@ const VendorPage = () => {
           image,
         })
       );
-      toast.info(`${name} removed from cart`);
+
     } catch (err) {
       if (err.response?.status === 401) {
         toast.error("Please login to continue");
