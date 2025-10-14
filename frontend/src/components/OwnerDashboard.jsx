@@ -32,65 +32,75 @@ const OwnerDashboard = () => {
     getVendorProduct();
   }, []);
 
-  if (loading) return <p className="p-4 text-center">Loading...</p>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full bg-green-50">
+        <span className="animate-spin rounded-full h-8 w-8 border-t-2 border-green-600 mr-2"></span>
+        <p className="text-green-700 text-lg font-semibold">Loading...</p>
+      </div>
+    );
 
   return (
-    <section className="bg-green-100 min-h-screen w-full p-2">
-      <div className="grid grid-cols-1 md:grid-cols-9 gap-4 max-w-7xl mx-auto">
-        {/* Sidebar - 2/7 */}
-        <div className="md:col-span-2 flex flex-col border border-gray-300 bg-white p-4 rounded-lg shadow-sm h-full">
-          <h2 className="text-xl font-bold flex items-center gap-2 pb-2">
-            <IoCamera size={30} /> Cart Image
-          </h2>
-
-          {vendorProduct?.cartImage && !editingImage ? (
-            <div className="relative mb-4">
-              <img
-                src={vendorProduct.cartImage}
-                alt="Cart"
-                className="w-full h-48 object-cover rounded-md"
+    <section className="bg-green-50 min-h-screen w-full px-2 py-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-11 gap-6">
+        {/* Sidebar (Cart Image + Vegetables) */}
+        <div className="md:col-span-3 bg-white p-5 rounded-xl shadow-lg h-fit flex flex-col gap-6 border border-gray-200">
+          {/* Cart Image block */}
+          <div>
+            <h2 className="text-xl font-bold flex items-center gap-2 mb-3 text-green-700">
+              <IoCamera size={28} /> Cart Image
+            </h2>
+            {vendorProduct?.cartImage && !editingImage ? (
+              <div className="relative mb-4">
+                <img
+                  src={vendorProduct.cartImage}
+                  alt="Cart"
+                  className="w-full h-44 object-cover rounded-lg border border-green-100"
+                />
+                <button
+                  onClick={() => setEditingImage(true)}
+                  className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-md shadow hover:bg-green-700 transition"
+                >
+                  Edit
+                </button>
+              </div>
+            ) : (
+              <ImageUpload
+                onUpload={async (url) => {
+                  try {
+                    await axios.post(
+                      `${import.meta.env.VITE_BACKEND_URL}/vendor/cart-image`,
+                      { cartImage: url },
+                      { withCredentials: true }
+                    );
+                    await getVendorProduct();
+                    setEditingImage(false);
+                  } catch (err) {
+                    console.error(err);
+                  }
+                }}
               />
-              <button
-                onClick={() => setEditingImage(true)}
-                className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition"
-              >
-                Edit
-              </button>
-            </div>
-          ) : (
-            <ImageUpload
-              onUpload={async (url) => {
-                try {
-                  await axios.post(
-                    `${import.meta.env.VITE_BACKEND_URL}/vendor/cart-image`,
-                    { cartImage: url },
-                    { withCredentials: true }
-                  );
-                  await getVendorProduct();
-                  setEditingImage(false);
-                } catch (err) {
-                  console.error(err);
-                }
-              }}
-            />
-          )}
-
-          <div className="flex-1 overflow-y-auto mt-2">
+            )}
+          </div>
+          {/* Vegetable Masters */}
+          <div className="overflow-y-auto max-h-96">
             {vendorProduct && (
               <VegetableMasters refreshProducts={getVendorProduct} />
             )}
           </div>
         </div>
 
-        {/* Product List - 2/7 */}
-        <div className="md:col-span-2 flex flex-col border border-gray-300 bg-white p-4 rounded-lg shadow-sm overflow-y-auto h-full">
+        {/* Product List */}
+        <div className="md:col-span-3 bg-white p-5 rounded-xl shadow-lg border border-gray-200 overflow-y-auto max-h-[600px] h-fit">
+          <h2 className="text-lg font-semibold text-green-700 mb-3">Your Product List</h2>
           {vendorProduct && (
             <VendorProductList products={vendorProduct.vegetables} />
           )}
         </div>
 
-        {/* Orders - 3/7 */}
-        <div className="md:col-span-3 flex flex-col border border-gray-300 bg-white p-4 rounded-lg shadow-sm overflow-y-auto h-full">
+        {/* Owner Orders */}
+        <div className="md:col-span-5 bg-white p-5 rounded-xl shadow-lg border border-gray-200 overflow-y-auto max-h-[600px] h-fit">
+          <h2 className="text-lg font-semibold text-green-700 mb-3">Orders</h2>
           <OwnerOrder />
         </div>
       </div>
