@@ -42,9 +42,9 @@ const OwnerDashboard = () => {
 
   return (
     <section className="bg-green-50 min-h-screen w-full px-2 py-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-11 gap-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-11 gap-3">
         {/* Sidebar (Cart Image + Vegetables) */}
-        <div className="md:col-span-3 bg-white p-5 rounded-xl shadow-lg h-fit flex flex-col gap-6 border border-gray-200">
+        <div className="md:col-span-4 bg-white p-5 rounded-xl shadow-lg h-fit flex flex-col gap-6 border border-gray-200">
           {/* Cart Image block */}
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2 mb-3 text-green-700">
@@ -59,7 +59,7 @@ const OwnerDashboard = () => {
                 />
                 <button
                   onClick={() => setEditingImage(true)}
-                  className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-md shadow hover:bg-green-700 transition"
+                  className="absolute top-2 right-2 !bg-green-600 text-white px-3 py-1 rounded-md shadow hover:!bg-green-700 transition"
                 >
                   Edit
                 </button>
@@ -99,7 +99,7 @@ const OwnerDashboard = () => {
         </div>
 
         {/* Owner Orders */}
-        <section className="md:col-span-5 bg-white p-6 rounded-lg shadow-lg border border-gray-200 overflow-y-auto max-h-[75vh]">
+        <section className="md:col-span-4 bg-white p-6 rounded-lg shadow-lg border border-gray-200 overflow-y-auto max-h-[75vh]">
   <h2 className="text-lg font-bold text-green-700 mb-3">Orders</h2>
   <OwnerOrder />
 </section>
