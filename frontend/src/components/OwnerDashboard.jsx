@@ -35,8 +35,8 @@ const OwnerDashboard = () => {
   if (loading) return <p className="p-4 text-center">Loading...</p>;
 
   return (
-    <section className="bg-green-100 min-h-screen w-full p-4">
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 max-w-7xl mx-auto">
+    <section className="bg-green-100 min-h-screen w-full p-2">
+      <div className="grid grid-cols-1 md:grid-cols-9 gap-4 max-w-7xl mx-auto">
         {/* Sidebar - 2/7 */}
         <div className="md:col-span-2 flex flex-col border border-gray-300 bg-white p-4 rounded-lg shadow-sm h-full">
           <h2 className="text-xl font-bold flex items-center gap-2 pb-2">
