@@ -99,10 +99,11 @@ const OwnerDashboard = () => {
         </div>
 
         {/* Owner Orders */}
-        <div className="md:col-span-5 bg-white p-5 rounded-xl shadow-lg border border-gray-200 overflow-y-auto max-h-[600px] h-fit">
-          <h2 className="text-lg font-semibold text-green-700 mb-3">Orders</h2>
-          <OwnerOrder />
-        </div>
+        <section className="md:col-span-5 bg-white p-6 rounded-lg shadow-lg border border-gray-200 overflow-y-auto max-h-[75vh]">
+  <h2 className="text-lg font-bold text-green-700 mb-3">Orders</h2>
+  <OwnerOrder />
+</section>
+
       </div>
     </section>
   );
