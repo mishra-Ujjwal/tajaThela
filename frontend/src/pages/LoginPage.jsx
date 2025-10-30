@@ -6,8 +6,8 @@ import { setUserData } from "../../redux/userSlice";
 import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("user@tajathela.com");
+  const [password, setPassword] = useState("user123");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
