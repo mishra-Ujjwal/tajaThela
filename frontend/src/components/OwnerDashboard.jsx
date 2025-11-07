@@ -84,9 +84,7 @@ const OwnerDashboard = () => {
           </div>
           {/* Vegetable Masters */}
           <div className="overflow-y-auto max-h-96">
-            {vendorProduct && (
-              <VegetableMasters refreshProducts={getVendorProduct} />
-            )}
+            <VegetableMasters refreshProducts={getVendorProduct} />
           </div>
         </div>
 
